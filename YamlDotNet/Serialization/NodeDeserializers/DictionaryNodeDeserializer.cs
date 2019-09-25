@@ -40,6 +40,10 @@ namespace YamlDotNet.Serialization.NodeDeserializers
 
         bool INodeDeserializer.Deserialize(IParser parser, Type expectedType, Func<IParser, Type, object> nestedObjectDeserializer, out object value)
         {
+            Console.WriteLine("<Dictionary");
+            Console.WriteLine(parser.Current.Start);
+            Console.WriteLine(parser.Current.End);
+
             IDictionary dictionary;
             Type keyType, valueType;
             var genericDictionaryType = ReflectionUtility.GetImplementedGenericInterface(expectedType, typeof(IDictionary<,>));
@@ -71,8 +75,9 @@ namespace YamlDotNet.Serialization.NodeDeserializers
                 return false;
             }
 
-            DeserializeHelper(keyType, valueType, parser, nestedObjectDeserializer, dictionary);
+            Console.WriteLine(">");
 
+            DeserializeHelper(keyType, valueType, parser, nestedObjectDeserializer, dictionary);
             return true;
         }
 

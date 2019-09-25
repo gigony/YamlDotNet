@@ -29,6 +29,58 @@ using YamlDotNet.Serialization.Utilities;
 
 namespace YamlDotNet.Serialization.NodeDeserializers
 {
+    public class ScalarWrapper
+    {
+
+        /// <summary>
+        /// Gets the position in the input stream where the event starts.
+        /// </summary>
+        public Mark Start
+        {
+            get
+            {
+                return start;
+            }
+        }
+
+        /// <summary>
+        /// Gets the position in the input stream where the event ends.
+        /// </summary>
+        public Mark End
+        {
+            get
+            {
+                return end;
+            }
+        }
+
+        public object Value
+        {
+            get
+            {
+                return value;
+            }
+        }
+
+        private readonly Mark start;
+        private readonly Mark end;
+        private readonly object value;
+
+        public ScalarWrapper(IParser parser, object value) {
+            this.start = parser.Current.Start;
+            this.end = parser.Current.End;
+            this.value = value;
+        }
+        public override bool Equals(object value) {
+            if (value == null) {
+                return false;
+            }
+            return (value.ToString() == this.value.ToString());
+        }
+        public override int GetHashCode() {
+            return this.value.GetHashCode();
+        }
+    }
     public sealed class ScalarNodeDeserializer : INodeDeserializer
     {
         private const string BooleanTruePattern = "^(true|y|yes|on)$";
@@ -36,6 +88,10 @@ namespace YamlDotNet.Serialization.NodeDeserializers
 
         bool INodeDeserializer.Deserialize(IParser parser, Type expectedType, Func<IParser, Type, object> nestedObjectDeserializer, out object value)
         {
+            Console.WriteLine("<Scalar");
+            Console.WriteLine(parser.Current.Start);
+            Console.WriteLine(parser.Current.End);
+
             var scalar = parser.Allow<Scalar>();
             if (scalar == null)
             {
@@ -105,6 +161,12 @@ namespace YamlDotNet.Serialization.NodeDeserializers
                         break;
                 }
             }
+
+            Console.WriteLine("value: {0:G}", value);
+            Console.WriteLine(">");
+
+            value = new ScalarWrapper(parser, value);
+
             return true;
         }
 
